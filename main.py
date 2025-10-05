@@ -124,7 +124,7 @@ class Player():
 
 world1_data = []
 
-with open("world1.txt") as file:
+with open("worlds/world1.txt") as file:
         for line in file:
                 world1_data.append([int(c) for c in line.strip()])
 
@@ -133,7 +133,7 @@ with open("world1.txt") as file:
 world1 = World(world1_data)
 
 # background
-sky_surf = pygame.image.load('sky.jpg')
+sky_surf = pygame.image.load('backgrounds/sky.jpg')
 sky_surf = pygame.transform.scale(sky_surf, (screen_width, screen_height))
 
 player = Player(3 * block_size, screen_height - 6 * block_size)
@@ -145,6 +145,7 @@ while run:
 
         screen.blit(sky_surf, (0, 0))
 
+        # Keep this commented unless you want to debug the screen layout
         #draw_grid()
 
         for event in pygame.event.get():
