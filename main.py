@@ -2,8 +2,6 @@ import pygame
 
 pygame.init()
 
-
-
 run = True
 # block -> 16px
 block_size = 16
@@ -12,7 +10,6 @@ screen_height = 864 # 16px * 54
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 FPS = 60
-
 
 class World():
         def __init__(self, grid):
@@ -45,12 +42,11 @@ class World():
                                         self.block_list.append(block_var)
                                 col_count += 1
                         row_count += 1
+
         def draw(self):
                 for block in self.block_list:
                         screen.blit(block[0], block[1])
                         pygame.draw.rect(screen, (255, 255, 255), block[1], 1) # for clarity
-                        
-
 
 class Player():
         def __init__(self, x, y):
@@ -61,8 +57,8 @@ class Player():
                 self.img_list = []
                 self.img = pygame.image.load('brackeys_platformer_assets/sprites/knight.png').convert_alpha()
                 self.player_rect = pygame.rect.Rect(x, y, self.player_width, self.player_height)
+                self.can_jump = True
                 
-
         def get_img(self, sheet, width, height, color):
                 
                 for i in range(0, 8):
@@ -74,17 +70,9 @@ class Player():
                         img_rect = img.get_rect()
                         image = (img, img_rect, player_mask)
                         self.img_list.append(image)
-
-         
-                
         
         def update(self):
-
-
-                # GAVITY AND COLLISION NOT FINISHED YET
-
                 # movement
-
                 dx = 0
                 dy = self.player_gravity
 
@@ -102,8 +90,10 @@ class Player():
                         self.img_index += 0.1
                         dx -= 5
                 if keys[pygame.K_SPACE] == True:
-                        self.player_gravity = -15
-                        dy = self.player_gravity
+                        if self.can_jump == True:
+                                self.player_gravity = -15
+                                dy = self.player_gravity
+                                self.can_jump = False # prevent button mashing and multi jumps                        
 
                 if int(self.img_index) >= len(self.img_list):
                         self.img_index = 0
@@ -121,21 +111,23 @@ class Player():
                         
                         # going vertically
                         if img_mask.overlap(block_mask, (block_rect.x - self.player_rect.x, block_rect.y - (self.player_rect.y + dy))):
-                                dy = 0
-                                self.player_gravity = 0
-                        
+                                if self.player_gravity > 0: # landing on the ground
+                                        dy = 0
+                                        self.player_gravity = 0
+                                        self.can_jump = True # jumping should be allowed whilst on the ground
+                                elif self.player_gravity < 0: # hitting the ceiling
+                                        dy = 0
+                                        self.player_gravity = 0
+                                        
                 self.player_rect.y += dy 
                 self.player_rect.x += dx
-
-
-                
                 
                 img_frame = self.img_list[int(self.img_index)][0] # the surface                
                 
-                pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
+                # Keep this commented unless you want to debug the player's hitbox range
+                #pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
+                
                 screen.blit(img_frame, self.player_rect)
-
-
 
 # for clarity 
 # def draw_grid():
@@ -143,14 +135,11 @@ class Player():
 #                 pygame.draw.line(screen, (0, 0, 0), (0, line * block_size), (screen_width, line * block_size))
 #                 pygame.draw.line(screen, (0, 0, 0), (line * block_size, 0), (line * block_size, screen_height))
 
-
 world1_data = []
 
 with open("worlds/world1.txt") as file:
         for line in file:
                 world1_data.append([int(c) for c in line.strip()])
-
-
 
 world1 = World(world1_data)
 
@@ -175,9 +164,6 @@ while run:
                         run = False
 
         world1.draw()
-
-
-
 
         player.update()
 
