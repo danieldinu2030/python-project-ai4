@@ -52,7 +52,7 @@ class World():
 
 class Player():
         def __init__(self, x, y):
-                self.player_gravity = 10
+                self.player_gravity = -15
                 self.player_width = 48
                 self.player_height = 48
                 self.img_index = 0
@@ -68,9 +68,9 @@ class Player():
                         img.blit(sheet, (0, 0), (width * i, 2 * height, width * (i + 1), 3 * height))
                         img = pygame.transform.scale(img, (self.player_width, self.player_height))
                         img.set_colorkey(color)
-                        self.player_mask = pygame.mask.from_surface(img) # mask for better collision
+                        player_mask = pygame.mask.from_surface(img) # mask for better collision
                         img_rect = img.get_rect()
-                        image = (img, img_rect, self.player_mask)
+                        image = (img, img_rect, player_mask)
                         self.img_list.append(image)
 
          
@@ -80,13 +80,17 @@ class Player():
 
 
                 # GAVITY AND COLLISION NOT FINISHED YET
+
+                # movement
                 dx = 0
-                dy = 0
+                dy = self.player_gravity
+
+                self.player_gravity += 1
+
+                if self.player_gravity >= 10:
+                        self.player_gravity = 10
 
                 keys = pygame.key.get_pressed()
-
-                if keys[pygame.K_DOWN] == True:
-                        dy += 5
 
                 if keys[pygame.K_RIGHT] == True:
                         self.img_index += 0.1
@@ -95,18 +99,48 @@ class Player():
                         self.img_index += 0.1
                         dx -= 5
                 if keys[pygame.K_SPACE] == True:
-                        dy -= 5
+                        self.player_gravity = -15
+                        dy = self.player_gravity
+
                 
+
+                # collision
+
+                for block in world1.block_list:
+                        block_rect = block[1]
+                        # going horizontally
+                        if pygame.Rect.colliderect(block_rect, (self.player_rect.x + dx, self.player_rect.y, self.player_width, self.player_height)) == True:
+                                dx = 0
+                        
+                        # going vertically
+                        if pygame.Rect.colliderect(block_rect, (self.player_rect.x, self.player_rect.y + dy, self.player_width, self.player_height)):
+                                if dy > 0: # falling
+                                        dy = 0
+                                        self.player_gravity = 0
+                                elif dy < 0: # jumping
+                                        dy = 0
+                                        self.player_gravity = 0
+                        
+                self.player_rect.y += dy 
                 self.player_rect.x += dx
-                self.player_rect.y += dy
+
 
                 if int(self.img_index) >= len(self.img_list):
                         self.img_index = 0
                 
                 img_frame = self.img_list[int(self.img_index)][0] # the surface
 
+                # img_mask = self.img_list[int(self.img_index)][2] # the mask
+                # mask_surf = img_mask.to_surface()
+
+
+
+
                 pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
                 screen.blit(img_frame, self.player_rect)
+
+
+                
 
 
 
@@ -136,7 +170,7 @@ world1 = World(world1_data)
 sky_surf = pygame.image.load('backgrounds/sky.jpg')
 sky_surf = pygame.transform.scale(sky_surf, (screen_width, screen_height))
 
-player = Player(3 * block_size, screen_height - 6 * block_size)
+player = Player(4 * block_size, screen_height - 7 * block_size)
 
 player.get_img(player.img, 32, 32, (0, 0, 0))
 
