@@ -31,7 +31,8 @@ class World():
                                         dirt_rect = image.get_rect()
                                         dirt_rect.x = block_size * col_count
                                         dirt_rect.y = block_size * row_count
-                                        block_var = (image, dirt_rect)
+                                        block_mask = pygame.mask.from_surface(image)
+                                        block_var = (image, dirt_rect, block_mask)
                                         self.block_list.append(block_var)
                                 if block == 2:
                                         # grass block
@@ -39,7 +40,8 @@ class World():
                                         grass_rect = image.get_rect()
                                         grass_rect.x = block_size * col_count
                                         grass_rect.y = block_size * row_count
-                                        block_var = (image, grass_rect)
+                                        block_mask = pygame.mask.from_surface(image)
+                                        block_var = (image, grass_rect, block_mask)
                                         self.block_list.append(block_var)
                                 col_count += 1
                         row_count += 1
@@ -82,6 +84,7 @@ class Player():
                 # GAVITY AND COLLISION NOT FINISHED YET
 
                 # movement
+
                 dx = 0
                 dy = self.player_gravity
 
@@ -102,50 +105,35 @@ class Player():
                         self.player_gravity = -15
                         dy = self.player_gravity
 
-                
+                if int(self.img_index) >= len(self.img_list):
+                        self.img_index = 0
+
+                img_mask = self.img_list[int(self.img_index)][2] # the mask of the player
 
                 # collision
 
                 for block in world1.block_list:
-                        block_rect = block[1]
+                        block_rect = block[1] # the rect of the block
+                        block_mask = block[2] # the mask of the block
                         # going horizontally
-                        if pygame.Rect.colliderect(block_rect, (self.player_rect.x + dx, self.player_rect.y, self.player_width, self.player_height)) == True:
+                        if img_mask.overlap(block_mask, (block_rect.x - (self.player_rect.x + dx), block_rect.y - self.player_rect.y)):
                                 dx = 0
                         
                         # going vertically
-                        if pygame.Rect.colliderect(block_rect, (self.player_rect.x, self.player_rect.y + dy, self.player_width, self.player_height)):
-                                if dy > 0: # falling
-                                        dy = 0
-                                        self.player_gravity = 0
-                                elif dy < 0: # jumping
-                                        dy = 0
-                                        self.player_gravity = 0
+                        if img_mask.overlap(block_mask, (block_rect.x - self.player_rect.x, block_rect.y - (self.player_rect.y + dy))):
+                                dy = 0
+                                self.player_gravity = 0
                         
                 self.player_rect.y += dy 
                 self.player_rect.x += dx
 
 
-                if int(self.img_index) >= len(self.img_list):
-                        self.img_index = 0
                 
-                img_frame = self.img_list[int(self.img_index)][0] # the surface
-
-                # img_mask = self.img_list[int(self.img_index)][2] # the mask
-                # mask_surf = img_mask.to_surface()
-
-
-
-
+                
+                img_frame = self.img_list[int(self.img_index)][0] # the surface                
+                
                 pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
                 screen.blit(img_frame, self.player_rect)
-
-
-                
-
-
-
-                
-
 
 
 
