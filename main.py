@@ -12,7 +12,14 @@ sky_surf = pygame.image.load('backgrounds/sky.jpg')
 sky_surf = pygame.transform.scale(sky_surf, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 player = Player(4 * BLOCK_SIZE, SCREEN_HEIGHT - 7 * BLOCK_SIZE)
-player.get_img(player.img, 32, 32, (0, 0, 0))
+# getting running images
+player.get_img(player.img, 32, 32, (0, 0, 0), 3, 8, player.running_img_list)
+# getting rolling images
+player.get_img(player.img, 32, 32, (0, 0, 0), 6, 8, player.rolling_img_list)
+# getting idle images
+player.get_img(player.img, 32, 32, (0, 0, 0), 1, 4, player.idle_image_list)
+
+
 
 while run:
         clock.tick(FPS)

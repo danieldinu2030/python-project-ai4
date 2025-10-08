@@ -1,7 +1,7 @@
 # Everything about the character (player)
 
 import pygame
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, screen
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT, screen
 from worlds import world1
 
 class Player():
@@ -9,24 +9,30 @@ class Player():
                 self.player_gravity = -15
                 self.player_width = 48
                 self.player_height = 48
-                self.img_index = 0
-                self.img_list = []
+                self.running_img_index = 0
+                self.idle_img_index = 0
+                self.rolling_img_index = 0
+                self.running_img_list = []
+                self.rolling_img_list = []
+                self.idle_image_list = []
                 self.img = pygame.image.load('brackeys_platformer_assets/sprites/knight.png').convert_alpha()
                 self.player_rect = pygame.rect.Rect(x, y, self.player_width, self.player_height)
                 self.can_jump = True
+                self.player_is_rolling = False
                 
-        def get_img(self, sheet, width, height, color):
-                
-                for i in range(0, 8):
+        def get_img(self, sheet, width, height, color, row_number, number_of_images, list_of_images):
+                # row_number starting from 1
+                for i in range(0, number_of_images):
+                        # animation images
                         img = pygame.surface.Surface((width, height)).convert_alpha()
-                        img.blit(sheet, (0, 0), (width * i, 2 * height, width * (i + 1), 3 * height))
+                        img.blit(sheet, (0, 0), (width * i, (row_number - 1) * height, width * (i + 1), row_number * height))
                         img = pygame.transform.scale(img, (self.player_width, self.player_height))
                         img.set_colorkey(color)
                         player_mask = pygame.mask.from_surface(img) # mask for better collision
                         img_rect = img.get_rect()
                         image = (img, img_rect, player_mask)
-                        self.img_list.append(image)
-        
+                        list_of_images.append(image)
+
         def update(self):
                 # movement
                 dx = 0
@@ -40,10 +46,22 @@ class Player():
                 keys = pygame.key.get_pressed()
 
                 if keys[pygame.K_RIGHT] == True:
-                        self.img_index += 0.1
+                        if keys[pygame.K_LSHIFT] == True:
+                                self.rolling_img_index += ROLLING_IMAGE_INCREMENT
+                                self.player_is_rolling = True
+                        else:
+                                self.player_is_rolling = False
+                                self.rolling_img_index = 0 # reset for next roll
+                                self.running_img_index += RUNNING_IMAGE_INCREMENT
                         dx += 5
                 if keys[pygame.K_LEFT] == True:
-                        self.img_index += 0.1
+                        if keys[pygame.K_LSHIFT] == True:
+                                self.rolling_img_index += ROLLING_IMAGE_INCREMENT
+                                self.player_is_rolling = True
+                        else:
+                                self.player_is_rolling = False
+                                self.rolling_img_index = 0 # reset for next roll
+                                self.running_img_index += RUNNING_IMAGE_INCREMENT
                         dx -= 5
                 if keys[pygame.K_SPACE] == True:
                         if self.can_jump == True:
@@ -51,10 +69,12 @@ class Player():
                                 dy = self.player_gravity
                                 self.can_jump = False # prevent button mashing and multi jumps                        
 
-                if int(self.img_index) >= len(self.img_list):
-                        self.img_index = 0
+                if int(self.running_img_index) >= len(self.running_img_list):
+                        self.running_img_index = 0
+                if int(self.rolling_img_index) >= len(self.rolling_img_list):
+                        self.rolling_img_index = 0
 
-                img_mask = self.img_list[int(self.img_index)][2] # the mask of the player
+                img_mask = self.running_img_list[int(self.running_img_index)][2] # the mask of the player
 
                 # collision
 
@@ -74,12 +94,24 @@ class Player():
                                 elif self.player_gravity < 0: # hitting the ceiling
                                         dy = 0
                                         self.player_gravity = 0
-                                        
-                self.player_rect.y += dy 
-                self.player_rect.x += dx
+
+                # checking if player is idle
                 
-                img_frame = self.img_list[int(self.img_index)][0] # the surface                
-                
+                if dx == 0 and dy == 0:
+                        self.running_img_index = 0 # start running animation from beginning after idle state
+                        self.idle_img_index += IDLE_IMAGE_INCREMENT
+                        if self.idle_img_index >= len(self.idle_image_list):
+                                self.idle_img_index = 0
+                        img_frame = self.idle_image_list[int(self.idle_img_index)][0] # the surface
+                else:
+                        self.player_rect.y += dy 
+                        self.player_rect.x += dx
+                        
+                        if self.player_is_rolling == True:
+                                img_frame = self.rolling_img_list[int(self.rolling_img_index)][0] # the surface
+                        else:
+                                img_frame = self.running_img_list[int(self.running_img_index)][0] # the surface                
+                        
                 # Keep this commented unless you want to debug the player's hitbox range
                 #pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
                 
