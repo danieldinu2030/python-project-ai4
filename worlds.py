@@ -2,10 +2,12 @@
 
 import pygame
 from settings import BLOCK_SIZE, screen
+import objects
 
 class World():
         def __init__(self, grid):
                 self.block_list = []
+                self.coin_list = []
 
                 grass_img = pygame.image.load('ClassicPlatformerAssets/GrassBlockBuildable/grassblocksetBuildable1.png')
                 dirt_img = pygame.image.load('ClassicPlatformerAssets/GrassBlockBuildable/grassblocksetBuildable4.png')
@@ -42,6 +44,13 @@ class World():
                                         block_mask = pygame.mask.from_surface(image)
                                         block_var = (image, water_rect, block_mask)
                                         self.block_list.append(block_var)
+                                if block == 4:
+                                        # coin block
+                                        coin_x = BLOCK_SIZE * col_count
+                                        coin_y = BLOCK_SIZE * row_count
+                                        coin = objects.Object('brackeys_platformer_assets/sprites/coin.png', coin_x, coin_y)
+                                        coin.get_obj_img(16, 16, (0, 0, 0), 1, 12, coin.object_img_list)
+                                        objects.obj_list.append(coin)
                                 col_count += 1
                         row_count += 1
 

@@ -32,11 +32,4 @@ class Object():
             screen.blit(obj_surface, self.obj_rect)
         
 
-# objects
-
 obj_list = []
-
-coin = Object('brackeys_platformer_assets/sprites/coin.png', 700, 750) # test coordinates 
-coin.get_obj_img(16, 16, (0, 0, 0), 1, 12, coin.object_img_list)
-
-obj_list.append(coin)
