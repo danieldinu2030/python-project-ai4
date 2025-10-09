@@ -1,7 +1,7 @@
 # Everything about the objects (an object is anything that can be "collected")
 
 import pygame
-from settings import screen
+from settings import screen, OBJECT_IMAGE_INCREMENT
 
 class Object():
     def __init__(self, path_to_sheet, x, y): # x, y -> placement
@@ -25,7 +25,7 @@ class Object():
         
     def obj_animation(self): 
         if self.object_shown == True:
-            self.object_img_index += 0.1 
+            self.object_img_index += OBJECT_IMAGE_INCREMENT
             if self.object_img_index >= len(self.object_img_list):
                 self.object_img_index = 0
             obj_surface = self.object_img_list[int(self.object_img_index)][0]
