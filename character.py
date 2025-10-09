@@ -147,7 +147,7 @@ class Player():
 
 
 # player
-player = Player(4 * BLOCK_SIZE, SCREEN_HEIGHT - 7 * BLOCK_SIZE)
+player = Player(7 * BLOCK_SIZE, SCREEN_HEIGHT - 7 * BLOCK_SIZE)
 # getting running images
 player.get_img(player.img, 32, 32, (0, 0, 0), 3, 8, player.running_img_list)
 # getting rolling images

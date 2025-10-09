@@ -1,5 +1,5 @@
 import pygame
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, screen
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, DEATH_SCREEN_DURATION, screen
 from character import player
 from objects import obj_list
 from worlds import world1 # this will become deprecated once we add more worlds
@@ -13,11 +13,21 @@ sky_surf = pygame.image.load('backgrounds/sky.jpg')
 sky_surf = pygame.transform.scale(sky_surf, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 def display_score():
-                score_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 25)
-                score = player.coins_collected * 10
-                score_surf = score_font.render(f'Score: {score}', True, (64, 64, 64))
-                score_rect = score_surf.get_rect(center = (SCREEN_WIDTH - 150, 50))
-                screen.blit(score_surf, score_rect)
+        score_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 25)
+        score = player.coins_collected * 10
+        score_surf = score_font.render(f'Score: {score}', True, (64, 64, 64))
+        score_rect = score_surf.get_rect(center = (SCREEN_WIDTH - 150, 50))
+        screen.blit(score_surf, score_rect)
+
+def display_fallen():
+        fallen_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 45)
+        score = player.coins_collected * 10
+        fallen_surf = fallen_font.render(f'You have fallen!', True, (64, 64, 64))
+        fallen_rect = fallen_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 60)) # determined by successive tries
+        score_surf = fallen_font.render(f'Score: {score}', True, (64, 64, 64))
+        score_rect = score_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        screen.blit(fallen_surf, fallen_rect)
+        screen.blit(score_surf, score_rect)
 
 while run:
         clock.tick(FPS)
@@ -44,6 +54,13 @@ while run:
         for obj in obj_list:
                 obj.obj_animation()
 
-        pygame.display.update()
+        if player.player_rect.y < SCREEN_HEIGHT:        
+                pygame.display.update()
+        else:
+                display_fallen()
+                pygame.display.update()
+                pygame.time.delay(DEATH_SCREEN_DURATION)
+                run = False
+                pygame.quit()
 
 pygame.quit()
