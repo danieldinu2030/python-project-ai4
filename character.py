@@ -83,12 +83,21 @@ class Player():
                 for block in world1.block_list:
                         block_rect = block[1] # the rect of the block
                         block_mask = block[2] # the mask of the block
+
+                        is_corner = False
+
                         # going horizontally
                         if img_mask.overlap(block_mask, (block_rect.x - (self.player_rect.x + dx), block_rect.y - self.player_rect.y)):
                                 dx = 0
-                        
+                                is_corner = True
                         # going vertically
                         if img_mask.overlap(block_mask, (block_rect.x - self.player_rect.x, block_rect.y - (self.player_rect.y + dy))):
+                                if is_corner == True:
+                                        if self.can_jump == True: # this fixes top corners
+                                                self.player_rect.bottom = block_rect.top
+                                        else: # this fixes bottom corners (still a bit glitchy, but it doesn't get stuck anymore)
+                                                self.player_rect.top = block_rect.bottom
+                        
                                 if self.player_gravity > 0: # landing on the ground
                                         dy = 0
                                         self.player_gravity = 0
@@ -98,22 +107,27 @@ class Player():
                                         self.player_gravity = 0
 
                 # checking if player is idle
-                
+
+                img_frame = pygame.surface.Surface((0, 0))
+
                 if dx == 0 and dy == 0:
                         self.running_img_index = 0 # start running animation from beginning after idle state
                         self.idle_img_index += IDLE_IMAGE_INCREMENT
                         if self.idle_img_index >= len(self.idle_image_list):
                                 self.idle_img_index = 0
                         img_frame = self.idle_image_list[int(self.idle_img_index)][0] # the surface
-                else:
-                        self.player_rect.y += dy 
-                        self.player_rect.x += dx
-                        
+                else:   
                         if self.player_is_rolling == True:
                                 img_frame = self.rolling_img_list[int(self.rolling_img_index)][0] # the surface
                         else:
                                 img_frame = self.running_img_list[int(self.running_img_index)][0] # the surface                
                         
+                        if dx < 0: # moving left
+                                img_frame = pygame.transform.flip(img_frame, True, False).convert_alpha()
+                        
+                        self.player_rect.y += dy
+                        self.player_rect.x += dx
+
                 # Keep this commented unless you want to debug the player's hitbox range
                 #pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
                 
