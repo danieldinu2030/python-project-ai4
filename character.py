@@ -1,8 +1,9 @@
 # Everything about the character (player)
 
 import pygame
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT, screen
+from settings import BLOCK_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT, screen
 from worlds import world1
+from objects import obj_list
 
 class Player():
         def __init__(self, x, y):
@@ -115,4 +116,23 @@ class Player():
                 # Keep this commented unless you want to debug the player's hitbox range
                 #pygame.draw.rect(screen, (255, 255, 255), self.player_rect, 3) # for clarity
                 
+                # check if the player "collected" an object
+
+                for obj in obj_list:
+                        for img in obj.object_img_list:
+                                obj_mask = img[2]
+                                # print((self.player_rect.x, self.player_rect.y))
+                                if img_mask.overlap(obj_mask, (obj.obj_rect.x - self.player_rect.x, obj.obj_rect.y - self.player_rect.y)):
+                                        obj.object_shown = False # remove the object from screen
+
                 screen.blit(img_frame, self.player_rect)
+
+
+# player
+player = Player(4 * BLOCK_SIZE, SCREEN_HEIGHT - 7 * BLOCK_SIZE)
+# getting running images
+player.get_img(player.img, 32, 32, (0, 0, 0), 3, 8, player.running_img_list)
+# getting rolling images
+player.get_img(player.img, 32, 32, (0, 0, 0), 6, 8, player.rolling_img_list)
+# getting idle images
+player.get_img(player.img, 32, 32, (0, 0, 0), 1, 4, player.idle_image_list)
