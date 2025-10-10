@@ -50,7 +50,7 @@ class Player():
                 keys = pygame.key.get_pressed()
 
                 if keys[pygame.K_RIGHT] == True:
-                        if keys[pygame.K_LSHIFT] == True:
+                        if keys[pygame.K_DOWN] == True:
                                 self.rolling_img_index += ROLLING_IMAGE_INCREMENT
                                 self.player_is_rolling = True
                         else:
@@ -59,7 +59,7 @@ class Player():
                                 self.running_img_index += RUNNING_IMAGE_INCREMENT
                         dx += 5
                 if keys[pygame.K_LEFT] == True:
-                        if keys[pygame.K_LSHIFT] == True:
+                        if keys[pygame.K_DOWN] == True:
                                 self.rolling_img_index += ROLLING_IMAGE_INCREMENT
                                 self.player_is_rolling = True
                         else:
