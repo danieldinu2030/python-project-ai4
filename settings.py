@@ -9,6 +9,13 @@ RUNNING_IMAGE_INCREMENT = 0.1
 ROLLING_IMAGE_INCREMENT = 0.15 # faster rolling animation
 IDLE_IMAGE_INCREMENT = 0.1
 OBJECT_IMAGE_INCREMENT = 0.1
+BUTTON_IMAGE_INCREMENT = 0.35
+
+# Level and main menu settings
+
+MAIN_MENU = True
+
+
 
 # screen setup
 from pygame import display

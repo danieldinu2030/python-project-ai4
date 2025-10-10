@@ -1,8 +1,9 @@
 import pygame
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, LOSS_SCREEN_DURATION, screen, loss_sound, mixer
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, LOSS_SCREEN_DURATION, MAIN_MENU, screen, loss_sound, mixer
 from character import player
 from objects import obj_list
 from worlds import world1 # this will become deprecated once we add more worlds
+from buttons import Button
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -29,6 +30,10 @@ def display_fallen():
         screen.blit(fallen_surf, fallen_rect)
         screen.blit(score_surf, score_rect)
 
+start_button = Button(400, 400, "Start") # test coordinates (will change for final main menu)
+
+start_button.get_img("button_images_01", 5, "png")
+
 while run:
         clock.tick(FPS)
 
@@ -46,25 +51,30 @@ while run:
                 if event.type == pygame.QUIT:
                         run = False
 
-        world1.draw()
-        display_score()
-
-        player.update()
-
-        for obj in obj_list:
-                obj.obj_animation()
-
-        if player.player_rect.y < SCREEN_HEIGHT:        
+        if MAIN_MENU == True:
+                start_button.update()
+                if start_button.was_pressed >= 1:
+                        MAIN_MENU = False
                 pygame.display.update()
         else:
-                display_fallen()
-                pygame.display.update()
-                mixer.music.unload()
+                world1.draw()
+                display_score()
+                player.update()
 
-                loss_sound.play()
-                pygame.time.delay(LOSS_SCREEN_DURATION)
-                
-                run = False
-                pygame.quit()
+                for obj in obj_list:
+                        obj.obj_animation()
+
+                if player.player_rect.y < SCREEN_HEIGHT:        
+                        pygame.display.update()
+                else:
+                        display_fallen()
+                        pygame.display.update()
+                        mixer.music.unload()
+
+                        loss_sound.play()
+                        pygame.time.delay(LOSS_SCREEN_DURATION)
+                        
+                        run = False
+                        pygame.quit()
 
 pygame.quit()
