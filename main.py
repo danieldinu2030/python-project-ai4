@@ -7,7 +7,7 @@ from buttons import Button
 
 pygame.init()
 clock = pygame.time.Clock()
-run = True
+running = True
 
 # background
 sky_surf = pygame.image.load('backgrounds/sky.jpg')
@@ -20,21 +20,55 @@ def display_score():
         score_rect = score_surf.get_rect(center = (SCREEN_WIDTH - 150, 50))
         screen.blit(score_surf, score_rect)
 
-def display_fallen():
+def display_time():
+        time_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 25)
+        time = pygame.time.get_ticks()
+        time = (int)(time / 1000) # transform to seconds
+        minutes = (int)(time / 60)
+        seconds = (int)(time % 60)
+        
+        if seconds < 10:
+                time_surf = time_font.render(f'Time: 0{minutes}:0{seconds}', True, (64, 64, 64))
+        elif seconds < 60:
+                time_surf = time_font.render(f'Time: 0{minutes}:{seconds}', True, (64, 64, 64))
+        time_rect = time_surf.get_rect(center = (SCREEN_WIDTH - 150, 100))
+        screen.blit(time_surf, time_rect)
+
+def display_fallen(time):
+        pygame.time.delay(250) # avoid making the transition very sudden
+        bg_surf = pygame.image.load('backgrounds/fallen_menu.jpg')
+        bg_surf = pygame.transform.scale(bg_surf, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(bg_surf, (0, 0))
+
         fallen_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 45)
         score = player.coins_collected * 10
-        fallen_surf = fallen_font.render(f'You have lost!', True, (64, 64, 64))
+        time = (int)(time / 1000) # transform to seconds
+        minutes = (int)(time / 60)
+        seconds = (int)(time % 60)
+
+        fallen_surf = fallen_font.render(f'You have fallen!', True, (64, 64, 64))
         fallen_rect = fallen_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 60)) # determined by successive tries
+
         score_surf = fallen_font.render(f'Score: {score}', True, (64, 64, 64))
         score_rect = score_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+
+        if seconds < 10:
+                time_surf = fallen_font.render(f'Time: 0{minutes}:0{seconds}', True, (64, 64, 64))
+        elif seconds < 60:
+                time_surf = fallen_font.render(f'Time: 0{minutes}:{seconds}', True, (64, 64, 64))
+        time_rect = time_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60))
+
+        #restart_button = Button(400, 400, "Try Again")
+        #restart_button.get_img("button_images_01", 5, "png")
+
         screen.blit(fallen_surf, fallen_rect)
         screen.blit(score_surf, score_rect)
+        screen.blit(time_surf, time_rect)
 
 start_button = Button(400, 400, "Start") # test coordinates (will change for final main menu)
-
 start_button.get_img("button_images_01", 5, "png")
 
-while run:
+while running:
         clock.tick(FPS)
 
         screen.blit(sky_surf, (0, 0))
@@ -49,7 +83,7 @@ while run:
 
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                        run = False
+                        running = False
 
         if MAIN_MENU == True:
                 start_button.update()
@@ -59,6 +93,7 @@ while run:
         else:
                 world1.draw()
                 display_score()
+                display_time()
                 player.update()
 
                 for obj in obj_list:
@@ -67,14 +102,13 @@ while run:
                 if player.player_rect.y < SCREEN_HEIGHT:        
                         pygame.display.update()
                 else:
-                        display_fallen()
+                        display_fallen(pygame.time.get_ticks())
                         pygame.display.update()
-                        mixer.music.unload()
-
+                        mixer.music.unload() # stop background music
                         loss_sound.play()
                         pygame.time.delay(LOSS_SCREEN_DURATION)
                         
-                        run = False
+                        running = False
                         pygame.quit()
 
 pygame.quit()
