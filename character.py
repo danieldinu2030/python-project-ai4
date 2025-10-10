@@ -1,7 +1,8 @@
 # Everything about the character (player)
 
 import pygame
-from settings import BLOCK_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT, screen
+from settings import BLOCK_SIZE, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT
+from settings import screen, coin_sound
 from worlds import world1
 from objects import obj_list
 
@@ -21,6 +22,7 @@ class Player():
                 self.can_jump = True
                 self.player_is_rolling = False
                 self.coins_collected = 0
+                self.jump_sound = pygame.mixer.Sound('brackeys_platformer_assets/sounds/jump.wav')
                 
         def get_img(self, sheet, width, height, color, row_number, number_of_images, list_of_images):
                 # row_number starting from 1
@@ -67,10 +69,11 @@ class Player():
                         dx -= 5
                 if keys[pygame.K_SPACE] == True:
                         if self.can_jump == True:
+                                self.jump_sound.play()
                                 self.player_gravity = -15
                                 dy = self.player_gravity
-                                self.can_jump = False # prevent button mashing and multi jumps                        
-
+                                self.can_jump = False # prevent button mashing and multi jumps
+                                
                 if int(self.running_img_index) >= len(self.running_img_list):
                         self.running_img_index = 0
                 if int(self.rolling_img_index) >= len(self.rolling_img_list):
@@ -139,6 +142,7 @@ class Player():
                                 # print((self.player_rect.x, self.player_rect.y))
                                 if img_mask.overlap(obj_mask, (obj.obj_rect.x - self.player_rect.x, obj.obj_rect.y - self.player_rect.y)):
                                         if obj.object_shown == True:
+                                                coin_sound.play()
                                                 player.coins_collected += 1 # avoid point farming after collecting the coin
                                         obj.object_shown = False # remove the object from screen
                                         

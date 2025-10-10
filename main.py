@@ -1,5 +1,5 @@
 import pygame
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, DEATH_SCREEN_DURATION, screen
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, LOSS_SCREEN_DURATION, screen, loss_sound, mixer
 from character import player
 from objects import obj_list
 from worlds import world1 # this will become deprecated once we add more worlds
@@ -22,7 +22,7 @@ def display_score():
 def display_fallen():
         fallen_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 45)
         score = player.coins_collected * 10
-        fallen_surf = fallen_font.render(f'You have fallen!', True, (64, 64, 64))
+        fallen_surf = fallen_font.render(f'You have lost!', True, (64, 64, 64))
         fallen_rect = fallen_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 60)) # determined by successive tries
         score_surf = fallen_font.render(f'Score: {score}', True, (64, 64, 64))
         score_rect = score_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
@@ -59,7 +59,11 @@ while run:
         else:
                 display_fallen()
                 pygame.display.update()
-                pygame.time.delay(DEATH_SCREEN_DURATION)
+                mixer.music.unload()
+
+                loss_sound.play()
+                pygame.time.delay(LOSS_SCREEN_DURATION)
+                
                 run = False
                 pygame.quit()
 
