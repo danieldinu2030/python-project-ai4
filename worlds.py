@@ -5,10 +5,17 @@ from settings import BLOCK_SIZE, screen
 import objects
 
 class World():
-        def __init__(self, grid):
+        def __init__(self):
                 self.block_list = []
                 self.coin_list = []
+                self.world_data = []
 
+        def get_world_data(self, file_path):
+                with open(file_path) as file:
+                        for line in file:
+                                self.world_data.append([int(c) for c in line.strip()])
+
+        def get_block_list(self, grid):
                 grass_img = pygame.image.load('ClassicPlatformerAssets/GrassBlockBuildable/grassblocksetBuildable1.png')
                 dirt_img = pygame.image.load('ClassicPlatformerAssets/GrassBlockBuildable/grassblocksetBuildable4.png')
                 water_img = pygame.image.load('ClassicPlatformerAssets/Water/water.png')
@@ -57,13 +64,17 @@ class World():
         def draw(self):
                 for block in self.block_list:
                         screen.blit(block[0], block[1])
-                        pygame.draw.rect(screen, (255, 255, 255), block[1], 1) # for clarity
+                        # Keep this commented unless you want to debug the screen layout
+                        # pygame.draw.rect(screen, (255, 255, 255), block[1], 1) 
 
-# we must also modularise this part once we add more worlds
-world1_data = []
+def create_world(path_to_world_data):
+        world = World() # new world
+        world.get_world_data(path_to_world_data) # get data
+        world.get_block_list(world.world_data) # get blocks
+        return world
 
-with open("worlds/world1.txt") as file:
-        for line in file:
-                world1_data.append([int(c) for c in line.strip()])
+# main menu
+world_main_menu = create_world("worlds/main_menu.txt")
 
-world1 = World(world1_data)
+# level 01
+world_level_01 = create_world("worlds/world1.txt")

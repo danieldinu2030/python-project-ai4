@@ -2,7 +2,7 @@ import pygame
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, LOSS_SCREEN_DURATION, MAIN_MENU, screen, loss_sound, mixer
 from character import player
 from objects import obj_list
-from worlds import world1
+from worlds import world_main_menu, world_level_01
 from buttons import Button
 
 pygame.init()
@@ -24,29 +24,26 @@ class Level():
                 self.world = world
                 # timer start
                 self.clock = pygame.time.Clock()
+                # player info
+                self.player_is_alive = False
 
         # once there is a main menu
         #def go_to_main_menu(self):
 
-        def update(self):
+        def display_world(self):
                 screen.blit(self.bg_surf, (0, 0))
                 self.world.draw()
-                self.display_score()
-                self.display_time()
-                player.update()
 
+        def display_player(self):
+                player.update()
+                if player.player_rect.y >= SCREEN_HEIGHT:
+                        self.player_is_alive = False
+                else:
+                        self.player_is_alive = True
+        
+        def display_objects(self):
                 for obj in obj_list:
                         obj.obj_animation()
-
-                if player.player_rect.y < SCREEN_HEIGHT:        
-                        pygame.display.update()
-                else:
-                        self.display_fallen(pygame.time.get_ticks())
-                        pygame.display.update()
-                        mixer.music.unload() # stop background music
-                        loss_sound.play()
-                        pygame.time.delay(LOSS_SCREEN_DURATION)
-                        self.running = False
 
         def display_score(self):
                 score_font = pygame.font.Font('brackeys_platformer_assets/fonts/PixelOperator8-Bold.ttf', 25)
@@ -94,20 +91,54 @@ class Level():
                 time_rect = time_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60))
 
                 #restart_button = Button(400, 400, "Try Again")
-                #restart_button.get_img("button_images_01", 5, "png")
+                #restart_button.get_img(1, "button_images_01", 5, "png") 
 
                 screen.blit(fallen_surf, fallen_rect)
                 screen.blit(score_surf, score_rect)
                 screen.blit(time_surf, time_rect)
+
+                pygame.display.update()
+
+                # stop background music
+                mixer.music.unload()
+
+                # play loss music
+                loss_sound.play()
+
+                # delayed exit
+                pygame.time.delay(LOSS_SCREEN_DURATION)
+
+                # quit level
+                self.running = False
+
+        def display_update(self):
+                pygame.display.update()
+
+        def start_level(self):
+                self.display_world() # layer 1
+                self.display_objects() # layer 2
+                # layer 3 (player layer)
+                self.display_player()
+                if self.player_is_alive == False: # if player is dead
+                        self.display_fallen(pygame.time.get_ticks())
+                else: 
+                        self.display_score() # layer 4
+                        self.display_time() # layer 5
+                        self.display_update() # go back to layer 1
+
+        def start_main_menu(self):
+                pass # couldn't figure it out, yet
 
 
 
 running = True
 
 start_button = Button(400, 400, "Start") # test coordinates (will change for final main menu)
-start_button.get_img("button_images_01", 5, "png")
+start_button.get_img(1, "button_images_01", 5, "png")
 
-level1 = Level('backgrounds/sky.jpg', world1)
+
+main_menu = Level('backgrounds/sky.jpg', world_main_menu)
+level1 = Level('backgrounds/sky.jpg', world_level_01)
 
 while running:
         level1.clock.tick(FPS)
@@ -125,12 +156,15 @@ while running:
                         running = False
 
         if MAIN_MENU == True:
+                main_menu.display_world()
+                # will add idle player (animation) on main menu, on some surface
+                # main_menu.display_player()
                 start_button.update()
                 if start_button.was_pressed >= 1:
                         MAIN_MENU = False
-                pygame.display.update()
+                main_menu.display_update()
         elif level1.running == True:
-                level1.update()
+                level1.start_level()
         else:
                 running = False
 

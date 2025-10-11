@@ -3,7 +3,7 @@
 import pygame
 from settings import BLOCK_SIZE, SCREEN_HEIGHT, ROLLING_IMAGE_INCREMENT, RUNNING_IMAGE_INCREMENT, IDLE_IMAGE_INCREMENT
 from settings import screen, coin_sound
-from worlds import world1
+from worlds import world_level_01
 from objects import obj_list
 
 class Player():
@@ -83,7 +83,7 @@ class Player():
 
                 # collision
 
-                for block in world1.block_list:
+                for block in world_level_01.block_list:
                         block_rect = block[1] # the rect of the block
                         block_mask = block[2] # the mask of the block
 
