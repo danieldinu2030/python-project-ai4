@@ -143,12 +143,11 @@ class Player():
                                 if img_mask.overlap(obj_mask, (obj.obj_rect.x - self.player_rect.x, obj.obj_rect.y - self.player_rect.y)):
                                         if obj.object_shown == True:
                                                 coin_sound.play()
-                                                player.coins_collected += 1 # avoid point farming after collecting the coin
+                                                self.coins_collected += 1 # avoid point farming after collecting the coin
                                         obj.object_shown = False # remove the object from screen
                                         
 
                 screen.blit(img_frame, self.player_rect)
-
 
 # player
 player = Player(7 * BLOCK_SIZE, SCREEN_HEIGHT - 7 * BLOCK_SIZE)
